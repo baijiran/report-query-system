@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能问数</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左侧导航栏 */
+        .sidebar {
+            width: 320px;
+            background-color: #fff;
+            border-right: 1px solid #e8e8e8;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px;
+            background-color: #e6f7f2;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #00bfa5;
+        }
+
+        .logo img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
+
+        .new-chat {
+            margin-top: 20px;
+        }
+
+        .new-chat-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #00bfa5;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .new-chat-btn:hover {
+            background-color: #00a994;
+        }
+
+        .new-chat-btn i {
+            margin-right: 8px;
+        }
+
+        .nav-menu {
+            flex: 2;
+            padding: 20px 0;
+            background: linear-gradient(to bottom, #e3f8f1, #eef6f5);
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-item.active {
+            background-color: #fff;
+            border-left-color: #00bfa5;
+            color: #00bfa5;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            font-size: 16px;
+            color: #00bfa5;
+        }
+
+        .nav-item .toggle-icon {
+            margin-left: auto;
+            color: #666;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item.sub-menu {
+            padding-left: 40px;
+            font-size: 14px;
+            color: #666;
+            display: none;
+        }
+
+        .nav-item.sub-menu.show {
+            display: flex;
+        }
+
+        .history-section {
+            padding: 20px;
+            border-top: 1px solid #e8e8e8;
+            background: linear-gradient(to bottom, #e3f8f1, #eef6f5);
+        }
+
+        .history-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-title .refresh {
+            cursor: pointer;
+            color: #999;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            color: #00bfa5;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding-left: 10px;
+        }
+
+        .history-item.active {
+            background-color: #fff;
+            color: #00bfa5;
+            padding-left: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .history-item .time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #00bfa5;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .footer .user-info {
+            flex: 1;
+        }
+
+        .footer .user-name {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .footer .settings {
+            cursor: pointer;
+            color: #00bfa5;
+            font-size: 18px;
+        }
+
+        /* 右侧主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f7fa;
+        }
+
+        /* 可展开收起的面板 */
+        .collapsible-panel {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 0 80px;
+        }
+
+        .panel-header {
+            padding: 15px 40px;
+            border-bottom: 1px solid #e8e8e8;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .report-tabs {
+            display: flex;
+            gap: 12px;
+        }
+
+        .report-tabs .tab {
+            padding: 8px 16px;
+            background-color: #f5f7fa;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .panel-content {
+            padding: 15px 40px;
+            background-color: #fff;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .panel-header.collapsed,
+        .panel-content.collapsed {
+            display: none;
+        }
+
+        .panel-footer {
+            padding: 8px 40px;
+            border-top: 1px solid #e8e8e8;
+            text-align: center;
+        }
+
+        .panel-toggle {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #666;
+            transition: transform 0.3s ease;
+        }
+
+        .panel-toggle.collapsed {
+            transform: rotate(180deg);
+        }
+
+        .welcome-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .data-update {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        /* 大家常问 */
+        .faq-section {
+            margin-top: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title .more {
+            font-size: 12px;
+            font-weight: normal;
+            color: #999;
+            margin-left: 12px;
+            cursor: pointer;
+        }
+
+        .faq-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .faq-tab {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .faq-tab.active {
+            background-color: #e6f7f2;
+            color: #07B581;
+        }
+
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .faq-item {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        /* 猜你想问 */
+        .guess-section {
+            margin-top: 20px;
+        }
+
+        .guess-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .guess-item {
+            background-color: #e6f7f2;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #07B581;
+            cursor: pointer;
+        }
+
+        /* 底部提问区 */
+        .bottom-input {
+            margin-top: auto;
+            padding: 20px 40px;
+            background-color: #f5f7fa;
+        }
+
+        .input-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border: 1px solid #e8e8e8;
+            border-radius: 20px;
+            background-color: #fff;
+            color: #666;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 32px;
+        }
+
+        .action-btn:hover {
+            border-color: #07B581;
+            color: #07B581;
+            box-shadow: 0 2px 4px rgba(7, 181, 129, 0.1);
+        }
+
+        .action-btn.active {
+            border-color: #07B581;
+            color: #07B581;
+            box-shadow: 0 2px 4px rgba(7, 181, 129, 0.1);
+        }
+
+        .action-btn i {
+            font-size: 16px;
+        }
+
+        .chat-input {
+            display: flex;
+            align-items: center;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 0;
+            background-color: #fff;
+            width: 100%;
+            overflow: hidden;
+            height: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input.hidden {
+            display: none;
+        }
+
+        .chat-input input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+            padding: 0 20px;
+            height: 100%;
+        }
+
+        .chat-input button {
+            background-color: #07B581;
+            color: white;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-container {
+            margin-top: 20px;
+        }
+
+        /* 快速思考表单 */
+        .quick-think-form {
+            background-color: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .quick-think-form.show {
+            display: block;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .form-group.with-icon {
+            position: relative;
+        }
+
+        .form-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .form-group select,
+        .form-group input[type="date"] {
+            width: 100%;
+            padding: 10px 14px 10px 40px;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .form-group select:focus,
+        .form-group input[type="date"]:focus {
+            outline: none;
+            border-color: #07B581;
+            box-shadow: 0 0 0 2px rgba(7, 181, 129, 0.1);
+        }
+
+        .search-btn {
+            background-color: #07B581;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background-color: #00a07f;
+        }
+
+        /* 选中指标标签 */
+        .selected-indicators-container {
+            margin-top: 15px;
+        }
+
+        .selected-indicators {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .indicator-tag {
+            background-color: #e6f7f2;
+            color: #07B581;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .indicator-tag .remove {
+            margin-left: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .indicator-tag .remove:hover {
+            color: #00a07f;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .result-table th,
+        .result-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .result-table th {
+            background-color: #f5f7fa;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .result-table tr:hover {
+            background-color: #f5f7fa;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 300px;
+            }
+
+            .main-content {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+            <div class="header">
+                <div class="logo">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300bfa5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5z'%3E%3C/path%3E%3Cpath d='M2 17l10 5 10-5'%3E%3C/path%3E%3Cpath d='M2 12l10 5 10-5'%3E%3C/path%3E%3C/svg%3E" alt="智能问数">
+                    智能问数
+                </div>
+                <div class="new-chat">
+                    <button class="new-chat-btn">
+                        <i style="color: white;">+</i>
+                        新会话
+                    </button>
+                </div>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item" onclick="toggleMenu(this)">
+                    <i>📊</i>
+                    通用场景
+                    <i class="toggle-icon">▶</i>
+                </div>
+                <div class="nav-item sub-menu">
+                    <a href="支行长通用问数.html" style="color: inherit; text-decoration: none; display: block; width: 100%;">
+                        支行长通用问数
+                    </a>
+                </div>
+                <div class="nav-item sub-menu active">
+                    报表通用问数
+                </div>
+                <div class="nav-item" onclick="toggleMenu(this)">
+                    <i>🏦</i>
+                    分行特色
+                    <i class="toggle-icon">▶</i>
+                </div>
+                <div class="nav-item sub-menu">
+                    深圳特色绩效通
+                </div>
+                <div class="nav-item sub-menu">
+                    江苏信用卡关键指标问数
+                </div>
+                <div class="nav-item sub-menu">
+                    天津特色客户经营工程
+                </div>
+                <div class="nav-item" onclick="toggleMenu(this)">
+                    <i>⭐</i>
+                    业务专区
+                    <i class="toggle-icon">▶</i>
+                </div>
+                <div class="nav-item sub-menu">
+                    银行年报智能问数
+                </div>
+                <div class="nav-item sub-menu">
+                    信用卡账期还款金额统计问数
+                </div>
+                <div class="nav-item sub-menu">
+                    总行信息化工程软件研发质监监测
+                </div>
+                <div class="nav-item sub-menu">
+                    公司金融智能助手问数
+                </div>
+                <div class="nav-item sub-menu">
+                    信用卡欺诈规则命中情况统计问数
+                </div>
+                <div class="nav-item sub-menu">
+                    绩效系统智能问数
+                </div>
+                <div class="nav-item sub-menu">
+                    金融市场智能问数助手
+                </div>
+                <div class="nav-item sub-menu">
+                    信用卡客户经营消费与客户指标统计问数
+                </div>
+                <div class="nav-item sub-menu">
+                    信用卡账期业务发展情况统计问数
+                </div>
+            </div>
+            <div class="history-section">
+                <div class="history-title">
+                    历史记录
+                    <span class="refresh">⟳</span>
+                </div>
+                <div class="history-list">
+                    <div class="history-item">
+                        2024年12月北京分行月均储蓄量多少？
+                        <div class="time">2023-06-20 09:06:27</div>
+                    </div>
+                    <div class="history-item">
+                        2024年12月北京分行存款月增量多少？2024年12月
+                        <div class="time">2023-06-20 09:06:27</div>
+                    </div>
+                    <div class="history-item">
+                        2024年12月北京分行存款月增量多少？
+                        <div class="time">2023-06-20 09:06:27</div>
+                    </div>
+                    <div class="history-item">
+                        2024年12月北京分行存款月增量多少？2024年12月
+                        <div class="time">2023-06-20 09:06:27</div>
+                    </div>
+                    <div class="history-item">
+                        2024年12月北京分行存款月增量多少？2024年12月
+                        <div class="time">2023-06-20 09:06:27</div>
+                    </div>
+                    <div class="history-item">
+                        2024年12月北京分行存款月增量多少？2024年12月
+                        <div class="time">2023-06-20 09:06:27</div>
+                    </div>
+                    <div class="history-item">
+                        2024年12月北京分行存款月增量多少？2024年12月
+                        <div class="time">2023-06-20 09:06:27</div>
+                    </div>
+                    <div class="history-item">
+                        2024年12月北京分行存款月增量多少？2024年12月
+                        <div class="time">2023-06-20 09:06:27</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <div class="avatar">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="user-info">
+                    <div class="user-name">系统管理员</div>
+                </div>
+                <div class="settings">☰</div>
+            </div>
+        </div>
+
+        <!-- 右侧主内容区 -->
+        <div class="main-content">
+            <!-- 可展开收起的面板 -->
+        <div class="collapsible-panel">
+            <div class="panel-header" id="panelHeader">
+                <div class="report-tabs">
+                    <div class="tab">报表名称报表名称报表</div>
+                    <div class="tab">报表名称报表名称报表</div>
+                    <div class="tab">报表名称报表名称报表</div>
+                </div>
+            </div>
+            <div class="panel-content" id="panelContent">
+                <div class="welcome-title">欢迎访问【报表通用问数】</div>
+                <div class="description">
+                    这里是说明文字这里是说明文字这里是说明文字这里是说明文字这里是说明文字这里是说明文字这里是说明文字这里是说明文字这里是说明文字这里是说明文字这里是说明文字这里是说明文字这里是说明文字这里是说明文字
+                </div>
+                <div class="data-update">数据更新：2025年9月3日 18:00:00</div>
+
+                <!-- 猜你想问 -->
+                <div class="guess-section">
+                    <div class="section-title">
+                        猜你想问
+                        <span class="more">换一换</span>
+                    </div>
+                    <div class="guess-list">
+                        <div class="guess-item">指标名称指标名称指标名称指标名称指标名称指标名称指标名称指标名称</div>
+                        <div class="guess-item">指标名称指标名称指标名称指标名称指标名称指标名称</div>
+                        <div class="guess-item">指标名称指标名称指标名称指标名称指标名称指标名称指标名称指标名称</div>
+                        <div class="guess-item">指标名称指标名称指标名称指标名称</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <button class="panel-toggle" id="panelToggle" onclick="togglePanel()">▼</button>
+            </div>
+        </div>
+
+            <!-- 底部提问区 -->
+            <div class="bottom-input">
+                <div class="input-container">
+                    <div class="quick-actions">
+                        <button class="action-btn" data-type="deep" onclick="setActiveButton(this)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                                <line x1="6" y1="1" x2="6" y2="4"></line>
+                                <line x1="10" y1="1" x2="10" y2="4"></line>
+                                <line x1="14" y1="1" x2="14" y2="4"></line>
+                            </svg>
+                            深度思考
+                        </button>
+                        <button class="action-btn active" data-type="quick" id="quick-think-btn" onclick="setActiveButton(this)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                            </svg>
+                            快速思考
+                        </button>
+                        <button class="action-btn" data-type="rank" onclick="setActiveButton(this)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 20V10"></path>
+                                <path d="M12 20V4"></path>
+                                <path d="M6 20v-6"></path>
+                            </svg>
+                            查排名
+                        </button>
+                    </div>
+
+                    <!-- 快速思考表单 -->
+                    <div id="quick-think-form" class="quick-think-form show">
+                        <div class="form-row">
+                            <div class="form-group with-icon">
+                                <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                                    <line x1="6" y1="6" x2="6" y2="6"></line>
+                                    <line x1="6" y1="18" x2="6" y2="18"></line>
+                                </svg>
+                                <select id="report-select">
+                                    <option value="">请选择报表</option>
+                                    <option value="report1">报表名称1</option>
+                                    <option value="report2">报表名称2</option>
+                                    <option value="report3">报表名称3</option>
+                                </select>
+                            </div>
+                            <div class="form-group with-icon">
+                                <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 20V10"></path>
+                                    <path d="M12 20V4"></path>
+                                    <path d="M6 20v-6"></path>
+                                </svg>
+                                <select id="period-select">
+                                    <option value="">请选择周期</option>
+                                    <option value="day">日</option>
+                                    <option value="week">周</option>
+                                    <option value="month">月</option>
+                                </select>
+                            </div>
+                            <div class="form-group with-icon">
+                                <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <input type="date" id="date-select" placeholder="请选择日期">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group with-icon">
+                                <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                    <path d="M2 17l10 5 10-5"></path>
+                                    <path d="M2 12l10 5 10-5"></path>
+                                </svg>
+                                <select id="org-select">
+                                    <option value="">请选择机构</option>
+                                    <option value="org1">机构1</option>
+                                    <option value="org2">机构2</option>
+                                    <option value="org3">机构3</option>
+                                </select>
+                            </div>
+                            <div class="form-group with-icon">
+                                <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                                    <line x1="6" y1="1" x2="6" y2="4"></line>
+                                    <line x1="10" y1="1" x2="10" y2="4"></line>
+                                    <line x1="14" y1="1" x2="14" y2="4"></line>
+                                </svg>
+                                <select id="cross-level-select">
+                                    <option value="">请选择跨级查询</option>
+                                    <option value="direct">直属下级</option>
+                                    <option value="head">总行</option>
+                                    <option value="level1">一分</option>
+                                    <option value="level2">二分</option>
+                                    <option value="branch1">一支</option>
+                                    <option value="branch2">二支</option>
+                                </select>
+                            </div>
+                            <div class="form-group with-icon">
+                                <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                <select id="org-type-select">
+                                    <option value="">请选择机构类型</option>
+                                    <option value="self">自营</option>
+                                    <option value="agent">代理</option>
+                                    <option value="total">合计</option>
+                                </select>
+                            </div>
+                            <div class="form-group with-icon">
+                                <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                                </svg>
+                                <select id="indicator-select">
+                                    <option value="">请选择指标（可多选）</option>
+                                    <option value="indicator1">指标1</option>
+                                    <option value="indicator2">指标2</option>
+                                    <option value="indicator3">指标3</option>
+                                    <option value="indicator4">指标4</option>
+                                </select>
+                            </div>
+                            <button class="search-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="selected-indicators-container">
+                            <div id="selected-indicators" class="selected-indicators"></div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input hidden">
+                        <input type="text" id="query-input" placeholder="请输入您的问题...">
+                        <button id="send-btn">➤</button>
+                    </div>
+
+                    <div id="result-container" class="result-container">
+                        <!-- 结果将在这里显示 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 菜单展开/收起功能
+        function toggleMenu(element) {
+            const toggleIcon = element.querySelector('.toggle-icon');
+            const nextElement = element.nextElementSibling;
+
+            // 检查是否有子菜单
+            if (nextElement && nextElement.classList.contains('sub-menu')) {
+                // 找到所有同级的sub-menu元素
+                let subMenu = nextElement;
+                let isVisible = subMenu.classList.contains('show');
+
+                // 切换所有同级sub-menu的显示状态
+                while (subMenu && subMenu.classList.contains('sub-menu')) {
+                    if (isVisible) {
+                        subMenu.classList.remove('show');
+                    } else {
+                        subMenu.classList.add('show');
+                    }
+                    subMenu = subMenu.nextElementSibling;
+                }
+
+                // 切换图标
+                if (isVisible) {
+                    toggleIcon.textContent = '▶';
+                    toggleIcon.style.transform = 'rotate(0deg)';
+                } else {
+                    toggleIcon.textContent = '▼';
+                    toggleIcon.style.transform = 'rotate(180deg)';
+                }
+            }
+        }
+
+        // 按钮选中状态处理
+        function setActiveButton(button) {
+            // 移除所有按钮的活跃状态
+            const buttons = document.querySelectorAll('.action-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // 为当前点击的按钮添加活跃状态
+            button.classList.add('active');
+
+            // 获取按钮类型
+            const type = button.dataset.type;
+            const quickThinkForm = document.getElementById('quick-think-form');
+            const chatInput = document.querySelector('.chat-input');
+
+            if (type === 'quick') {
+                // 快速思考模式：显示快速思考表单，隐藏提问框
+                quickThinkForm.classList.add('show');
+                chatInput.classList.add('hidden');
+            } else {
+                // 深度思考和查排名模式：隐藏快速思考表单，显示提问框
+                quickThinkForm.classList.remove('show');
+                chatInput.classList.remove('hidden');
+            }
+        }
+
+        // 面板展开/收起功能
+        function togglePanel() {
+            const panelHeader = document.getElementById('panelHeader');
+            const panelContent = document.getElementById('panelContent');
+            const panelToggle = document.getElementById('panelToggle');
+
+            if (panelContent.classList.contains('collapsed')) {
+                // 展开面板
+                panelHeader.classList.remove('collapsed');
+                panelContent.classList.remove('collapsed');
+                panelToggle.classList.remove('collapsed');
+                panelToggle.textContent = '▼';
+            } else {
+                // 收起面板
+                panelHeader.classList.add('collapsed');
+                panelContent.classList.add('collapsed');
+                panelToggle.classList.add('collapsed');
+                panelToggle.textContent = '▶';
+            }
+        }
+
+        // 获取DOM元素
+        const quickThinkBtn = document.getElementById('quick-think-btn');
+        const sendBtn = document.getElementById('send-btn');
+        const queryInput = document.getElementById('query-input');
+        const resultContainer = document.getElementById('result-container');
+
+
+
+        // 指标多选功能
+        const indicatorSelect = document.getElementById('indicator-select');
+        const selectedIndicators = document.getElementById('selected-indicators');
+        const selectedIndicatorValues = new Set();
+
+        indicatorSelect.addEventListener('change', function() {
+            const value = this.value;
+            if (value) {
+                const text = this.options[this.selectedIndex].text;
+                if (!selectedIndicatorValues.has(value)) {
+                    selectedIndicatorValues.add(value);
+                    addIndicatorTag(value, text);
+                }
+                // 重置选择框
+                this.value = '';
+            }
+        });
+
+        function addIndicatorTag(value, text) {
+            const tag = document.createElement('div');
+            tag.className = 'indicator-tag';
+            tag.dataset.value = value;
+            tag.innerHTML = `${text} <span class="remove">×</span>`;
+            selectedIndicators.appendChild(tag);
+
+            // 添加移除事件
+            tag.querySelector('.remove').addEventListener('click', function() {
+                selectedIndicatorValues.delete(value);
+                tag.remove();
+            });
+        }
+
+        // 发送按钮点击事件
+        sendBtn.addEventListener('click', function() {
+            const query = queryInput.value;
+
+            if (!query) {
+                alert('请输入问题');
+                return;
+            }
+
+            // 模拟API调用
+            setTimeout(function() {
+                // 生成模拟数据
+                const mockData = {
+                    currentValue: Math.floor(Math.random() * 1000000000) / 100,
+                    qoq: (Math.random() * 10 - 5).toFixed(2),
+                    mom: (Math.random() * 10 - 5).toFixed(2),
+                    dimensions: [
+                        { name: '储蓄存款', value: Math.floor(Math.random() * 500000000) / 100, change: (Math.random() * 10 - 5).toFixed(2) },
+                        { name: '对公存款', value: Math.floor(Math.random() * 500000000) / 100, change: (Math.random() * 10 - 5).toFixed(2) },
+                        { name: '活期存款', value: Math.floor(Math.random() * 500000000) / 100, change: (Math.random() * 10 - 5).toFixed(2) },
+                        { name: '定期存款', value: Math.floor(Math.random() * 500000000) / 100, change: (Math.random() * 10 - 5).toFixed(2) }
+                    ]
+                };
+
+                // 显示结果
+                let resultHTML = `
+                    <h4>查询结果</h4>
+                    <table class="result-table">
+                        <tr>
+                            <th>指标</th>
+                            <th>当前值</th>
+                            <th>环比(%)</th>
+                            <th>较上月(%)</th>
+                        </tr>
+                        <tr>
+                            <td>查询指标</td>
+                            <td>¥${mockData.currentValue.toLocaleString()}</td>
+                            <td>${mockData.qoq}%</td>
+                            <td>${mockData.mom}%</td>
+                        </tr>
+                    </table>
+                    <h5 style="margin-top: 20px;">多维度数据</h5>
+                    <table class="result-table">
+                        <tr>
+                            <th>维度</th>
+                            <th>值</th>
+                            <th>变化(%)</th>
+                        </tr>
+                `;
+
+                mockData.dimensions.forEach(function(dim) {
+                    resultHTML += `
+                        <tr>
+                            <td>${dim.name}</td>
+                            <td>¥${dim.value.toLocaleString()}</td>
+                            <td>${dim.change}%</td>
+                        </tr>
+                    `;
+                });
+
+                resultHTML += `</table>`;
+
+                resultContainer.innerHTML = resultHTML;
+            }, 1000); // 模拟API调用延迟
+        });
+    </script>
+</body>
+</html>
