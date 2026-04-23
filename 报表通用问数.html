@@ -380,15 +380,42 @@
 
         /* 底部提问区 */
         .bottom-input {
-            margin-top: auto;
+            position: fixed;
+            bottom: 0;
+            left: 320px; /* 与左侧导航栏宽度一致 */
+            right: 0;
             padding: 20px 40px;
-            background-color: #f5f7fa;
+            background-color: transparent;
+            z-index: 999;
         }
 
         .input-container {
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
+        }
+
+        /* 主内容区调整 */
+        .main-content {
+            padding-bottom: 300px; /* 为固定的底部输入区留出空间 */
+        }
+
+        /* 结果容器调整 */
+        .result-container {
+            position: fixed;
+            top: 160px;
+            left: 340px;
+            right: 340px;
+            margin: 0;
+            padding: 0 20px;
+            z-index: 999;
+        }
+
+        /* 清除浮动 */
+        .main-content::after {
+            content: '';
+            display: table;
+            clear: both;
         }
 
         .quick-actions {
@@ -602,6 +629,17 @@
             background-color: #f5f7fa;
         }
 
+        .sort-icon {
+            margin-left: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #07B581;
+        }
+
+        th {
+            cursor: pointer;
+        }
+
         /* 响应式设计 */
         @media (max-width: 768px) {
             .container {
@@ -788,6 +826,11 @@
             </div>
         </div>
 
+            <!-- 结果容器 -->
+            <div id="result-container" class="result-container">
+                <!-- 结果将在这里显示 -->
+            </div>
+
             <!-- 底部提问区 -->
             <div class="bottom-input">
                 <div class="input-container">
@@ -928,46 +971,43 @@
                         <input type="text" id="query-input" placeholder="请输入您的问题...">
                         <button id="send-btn">➤</button>
                     </div>
-
-                    <div id="result-container" class="result-container">
-                        <!-- 结果将在这里显示 -->
-                    </div>
                 </div>
             </div>
         </div>
     </div>
     <script>
-        // 菜单展开/收起功能
-        function toggleMenu(element) {
-            const toggleIcon = element.querySelector('.toggle-icon');
-            const nextElement = element.nextElementSibling;
+        document.addEventListener('DOMContentLoaded', function() {
+            // 菜单展开/收起功能
+            function toggleMenu(element) {
+                const toggleIcon = element.querySelector('.toggle-icon');
+                const nextElement = element.nextElementSibling;
 
-            // 检查是否有子菜单
-            if (nextElement && nextElement.classList.contains('sub-menu')) {
-                // 找到所有同级的sub-menu元素
-                let subMenu = nextElement;
-                let isVisible = subMenu.classList.contains('show');
+                // 检查是否有子菜单
+                if (nextElement && nextElement.classList.contains('sub-menu')) {
+                    // 找到所有同级的sub-menu元素
+                    let subMenu = nextElement;
+                    let isVisible = subMenu.classList.contains('show');
 
-                // 切换所有同级sub-menu的显示状态
-                while (subMenu && subMenu.classList.contains('sub-menu')) {
-                    if (isVisible) {
-                        subMenu.classList.remove('show');
-                    } else {
-                        subMenu.classList.add('show');
+                    // 切换所有同级sub-menu的显示状态
+                    while (subMenu && subMenu.classList.contains('sub-menu')) {
+                        if (isVisible) {
+                            subMenu.classList.remove('show');
+                        } else {
+                            subMenu.classList.add('show');
+                        }
+                        subMenu = subMenu.nextElementSibling;
                     }
-                    subMenu = subMenu.nextElementSibling;
-                }
 
-                // 切换图标
-                if (isVisible) {
-                    toggleIcon.textContent = '▶';
-                    toggleIcon.style.transform = 'rotate(0deg)';
-                } else {
-                    toggleIcon.textContent = '▼';
-                    toggleIcon.style.transform = 'rotate(180deg)';
+                    // 切换图标
+                    if (isVisible) {
+                        toggleIcon.textContent = '▶';
+                        toggleIcon.style.transform = 'rotate(0deg)';
+                    } else {
+                        toggleIcon.textContent = '▼';
+                        toggleIcon.style.transform = 'rotate(180deg)';
+                    }
                 }
             }
-        }
 
         // 按钮选中状态处理
         function setActiveButton(button) {
@@ -1029,6 +1069,7 @@
         const indicatorSelect = document.getElementById('indicator-select');
         const selectedIndicators = document.getElementById('selected-indicators');
         const selectedIndicatorValues = new Set();
+        const searchBtn = document.querySelector('.search-btn');
 
         indicatorSelect.addEventListener('change', function() {
             const value = this.value;
@@ -1054,6 +1095,304 @@
             tag.querySelector('.remove').addEventListener('click', function() {
                 selectedIndicatorValues.delete(value);
                 tag.remove();
+            });
+        }
+
+        // 搜索按钮点击事件
+        searchBtn.addEventListener('click', function() {
+            console.log('搜索按钮被点击了');
+            const reportSelect = document.getElementById('report-select');
+            const periodSelect = document.getElementById('period-select');
+            const dateSelect = document.getElementById('date-select');
+            const orgSelect = document.getElementById('org-select');
+            const crossLevelSelect = document.getElementById('cross-level-select');
+            const orgTypeSelect = document.getElementById('org-type-select');
+
+            // 检查是否选择了指标
+            if (selectedIndicatorValues.size === 0) {
+                alert('请至少选择一个指标');
+                return;
+            }
+
+            // 收起面板
+            togglePanel();
+
+            // 收集维度信息
+            const dimensions = {
+                report: reportSelect.options[reportSelect.selectedIndex].text,
+                period: periodSelect.options[periodSelect.selectedIndex].text,
+                date: dateSelect.value,
+                org: orgSelect.options[orgSelect.selectedIndex].text,
+                crossLevel: crossLevelSelect.options[crossLevelSelect.selectedIndex].text,
+                orgType: orgTypeSelect.options[orgTypeSelect.selectedIndex].text,
+                indicators: Array.from(selectedIndicatorValues).map(value => {
+                    const option = indicatorSelect.querySelector(`option[value="${value}"]`);
+                    return option ? option.text : value;
+                })
+            };
+
+            // 显示维度卡片
+            displayDimensionCards(dimensions);
+
+            // 模拟API调用
+            setTimeout(function() {
+                // 生成模拟数据
+                const mockData = Array.from(selectedIndicatorValues).map((indicator, index) => {
+                    return {
+                        name: `指标${index + 1}`,
+                        value: Math.floor(Math.random() * 1000000000) / 100,
+                        yoy: (Math.random() * 20 - 10).toFixed(2),
+                        qoq: (Math.random() * 10 - 5).toFixed(2),
+                        mom: (Math.random() * 8 - 4).toFixed(2),
+                        ytd: (Math.random() * 15 - 7.5).toFixed(2)
+                    };
+                });
+
+                // 以对话形式显示结果
+                displayDialogResult(mockData);
+            }, 1000); // 模拟API调用延迟
+        });
+
+        // 显示维度卡片
+        function displayDimensionCards(dimensions) {
+            const mainContent = document.querySelector('.main-content');
+            
+            // 移除旧的维度卡片容器
+            const oldCardContainer = document.querySelector('.dimension-cards');
+            if (oldCardContainer) {
+                oldCardContainer.remove();
+            }
+
+            // 创建维度卡片容器
+            const cardContainer = document.createElement('div');
+            cardContainer.className = 'dimension-cards';
+            cardContainer.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                width: 300px;
+                background-color: #f0f9f6;
+                border-radius: 8px;
+                padding: 15px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+            `;
+
+            // 添加卡片标题
+            const cardTitle = document.createElement('h4');
+            cardTitle.textContent = '选择的维度';
+            cardTitle.style.marginBottom = '15px';
+            cardContainer.appendChild(cardTitle);
+
+            // 添加维度信息
+            const dimensionInfo = document.createElement('div');
+            dimensionInfo.style.display = 'flex';
+            dimensionInfo.style.flexDirection = 'column';
+            dimensionInfo.style.gap = '8px';
+
+            if (dimensions.report && dimensions.report !== '请选择报表') {
+                addDimensionItem(dimensionInfo, '报表', dimensions.report);
+            }
+            if (dimensions.period && dimensions.period !== '请选择周期') {
+                addDimensionItem(dimensionInfo, '周期', dimensions.period);
+            }
+            if (dimensions.date) {
+                addDimensionItem(dimensionInfo, '日期', dimensions.date);
+            }
+            if (dimensions.org && dimensions.org !== '请选择机构') {
+                addDimensionItem(dimensionInfo, '机构', dimensions.org);
+            }
+            if (dimensions.crossLevel && dimensions.crossLevel !== '请选择跨级查询') {
+                addDimensionItem(dimensionInfo, '跨级查询', dimensions.crossLevel);
+            }
+            if (dimensions.orgType && dimensions.orgType !== '请选择机构类型') {
+                addDimensionItem(dimensionInfo, '机构类型', dimensions.orgType);
+            }
+            if (dimensions.indicators.length > 0) {
+                addDimensionItem(dimensionInfo, '指标', dimensions.indicators.join(', '));
+            }
+
+            cardContainer.appendChild(dimensionInfo);
+            mainContent.appendChild(cardContainer);
+        }
+
+        // 添加维度项
+        function addDimensionItem(container, label, value) {
+            const item = document.createElement('div');
+            item.style.display = 'flex';
+            item.style.alignItems = 'center';
+            item.style.fontSize = '14px';
+            
+            const labelSpan = document.createElement('span');
+            labelSpan.textContent = label + '：';
+            labelSpan.style.fontWeight = 'bold';
+            labelSpan.style.marginRight = '8px';
+            labelSpan.style.color = '#07B581';
+            
+            const valueSpan = document.createElement('span');
+            valueSpan.textContent = value;
+            valueSpan.style.flex = '1';
+            
+            item.appendChild(labelSpan);
+            item.appendChild(valueSpan);
+            container.appendChild(item);
+        }
+
+        // 以对话形式显示结果
+        function displayDialogResult(data) {
+            const resultContainer = document.getElementById('result-container');
+            
+            // 清空旧结果
+            resultContainer.innerHTML = '';
+            
+            // 重置容器样式
+            resultContainer.style.display = 'flex';
+            resultContainer.style.flexDirection = 'column';
+            resultContainer.style.gap = '15px';
+            resultContainer.style.padding = '20px';
+
+            // 添加用户查询对话
+            const userQuery = document.createElement('div');
+            userQuery.style.cssText = `
+                align-self: flex-start;
+                background-color: #e6f7f2;
+                padding: 12px 16px;
+                border-radius: 16px 16px 16px 4px;
+                max-width: 80%;
+            `;
+            userQuery.innerHTML = '<strong>您的查询：</strong>快速思考分析';
+            resultContainer.appendChild(userQuery);
+
+            // 添加系统响应对话
+            const systemResponse = document.createElement('div');
+            systemResponse.style.cssText = `
+                align-self: flex-start;
+                background-color: #fff;
+                padding: 12px 16px;
+                border-radius: 16px 16px 4px 16px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                max-width: 100%;
+                width: 100%;
+            `;
+
+            // 添加结果表格
+            let tableHTML = `
+                <h4 style="margin-bottom: 10px;">快速思考结果</h4>
+                <table class="result-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0)">指标名称 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(1)">明细值 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(2)">同比(%) <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(3)">环比(%) <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(4)">较上月(%) <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(5)">较年初(%) <span class="sort-icon">▼</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            data.forEach(function(item) {
+                tableHTML += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>¥${item.value.toLocaleString()}</td>
+                        <td>${item.yoy}%</td>
+                        <td>${item.qoq}%</td>
+                        <td>${item.mom}%</td>
+                        <td>${item.ytd}%</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `</tbody></table>`;
+            systemResponse.innerHTML = tableHTML;
+            resultContainer.appendChild(systemResponse);
+        }
+
+        // 显示快速思考结果
+        function displayQuickThinkResult(data) {
+            const resultContainer = document.getElementById('result-container');
+            
+            let resultHTML = `
+                <h4>快速思考结果</h4>
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0)">指标名称 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(1)">明细值 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(2)">同比(%) <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(3)">环比(%) <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(4)">较上月(%) <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(5)">较年初(%) <span class="sort-icon">▼</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            data.forEach(function(item) {
+                resultHTML += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>¥${item.value.toLocaleString()}</td>
+                        <td>${item.yoy}%</td>
+                        <td>${item.qoq}%</td>
+                        <td>${item.mom}%</td>
+                        <td>${item.ytd}%</td>
+                    </tr>
+                `;
+            });
+
+            resultHTML += `</tbody></table>`;
+            resultContainer.innerHTML = resultHTML;
+        }
+
+        // 表格排序功能
+        let currentSortColumn = -1;
+        let isAscending = true;
+
+        function sortTable(columnIndex) {
+            const table = document.querySelector('.result-table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // 如果点击的是当前排序列，切换排序方向
+            if (columnIndex === currentSortColumn) {
+                isAscending = !isAscending;
+            } else {
+                // 否则，设置新的排序列和默认排序方向
+                currentSortColumn = columnIndex;
+                isAscending = true;
+            }
+
+            // 排序行
+            rows.sort(function(a, b) {
+                const aValue = a.querySelectorAll('td')[columnIndex].textContent;
+                const bValue = b.querySelectorAll('td')[columnIndex].textContent;
+
+                // 处理数值类型
+                if (columnIndex > 0) {
+                    const aNum = parseFloat(aValue.replace(/[¥,%]/g, ''));
+                    const bNum = parseFloat(bValue.replace(/[¥,%]/g, ''));
+                    return isAscending ? aNum - bNum : bNum - aNum;
+                } else {
+                    // 处理文本类型
+                    return isAscending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+                }
+            });
+
+            // 重新插入行
+            rows.forEach(function(row) {
+                tbody.appendChild(row);
+            });
+
+            // 更新排序图标
+            document.querySelectorAll('.sort-icon').forEach(function(icon, index) {
+                if (index === columnIndex) {
+                    icon.textContent = isAscending ? '▼' : '▲';
+                } else {
+                    icon.textContent = '▼';
+                }
             });
         }
 
@@ -1118,9 +1457,9 @@
                 });
 
                 resultHTML += `</table>`;
-
                 resultContainer.innerHTML = resultHTML;
             }, 1000); // 模拟API调用延迟
+        });
         });
     </script>
 </body>
