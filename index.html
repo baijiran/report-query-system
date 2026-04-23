@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能问数系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            text-align: center;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            color: #00bfa5;
+            margin-bottom: 30px;
+        }
+        
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .link-button {
+            display: block;
+            padding: 15px 30px;
+            background-color: #07B581;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .link-button:hover {
+            background-color: #00a07f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(7, 181, 129, 0.2);
+        }
+        
+        .description {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>智能问数系统</h1>
+        <p class="description">欢迎访问智能问数系统，您可以选择以下问数场景：</p>
+        <div class="links">
+            <a href="报表通用问数.html" class="link-button">报表通用问数</a>
+            <a href="支行长通用问数.html" class="link-button">支行长通用问数</a>
+        </div>
+    </div>
+</body>
+</html>
