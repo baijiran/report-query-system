@@ -884,12 +884,12 @@
                                     <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
                                 </svg>
                                 <select id="indicator-select">
+                                    <option value="all">全部指标</option>
                                     <option value="">请选择指标</option>
                                     <option value="indicator1">指标1</option>
                                     <option value="indicator2">指标2</option>
                                     <option value="indicator3">指标3</option>
                                     <option value="indicator4">指标4</option>
-                                    <option value="all">全部指标</option>
                                 </select>
                             </div>
                         </div>
@@ -1318,11 +1318,11 @@
                     <thead>
                         <tr>
                             <th onclick="sortTable(0)">指标名称 <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(1)">明细值 <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(2)">同比(%) <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(3)">环比(%) <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(4)">较上月(%) <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(5)">较年初(%) <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(1)">当前值 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(2)">同比 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(3)">环比 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(4)">较上月 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(5)">较年初 <span class="sort-icon">▼</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1333,10 +1333,10 @@
                     <tr>
                         <td>${item.name}</td>
                         <td>¥${item.value.toLocaleString()}</td>
-                        <td>${item.yoy}%</td>
-                        <td>${item.qoq}%</td>
-                        <td>${item.mom}%</td>
-                        <td>${item.ytd}%</td>
+                        <td>¥${(item.yoy * 100000).toLocaleString()}</td>
+                        <td>¥${(item.qoq * 50000).toLocaleString()}</td>
+                        <td>¥${(item.mom * 30000).toLocaleString()}</td>
+                        <td>¥${(item.ytd * 80000).toLocaleString()}</td>
                     </tr>
                 `;
             });
@@ -1356,11 +1356,11 @@
                     <thead>
                         <tr>
                             <th onclick="sortTable(0)">指标名称 <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(1)">明细值 <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(2)">同比(%) <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(3)">环比(%) <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(4)">较上月(%) <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(5)">较年初(%) <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(1)">当前值 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(2)">同比 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(3)">环比 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(4)">较上月 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(5)">较年初 <span class="sort-icon">▼</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1371,10 +1371,10 @@
                     <tr>
                         <td>${item.name}</td>
                         <td>¥${item.value.toLocaleString()}</td>
-                        <td>${item.yoy}%</td>
-                        <td>${item.qoq}%</td>
-                        <td>${item.mom}%</td>
-                        <td>${item.ytd}%</td>
+                        <td>¥${(item.yoy * 100000).toLocaleString()}</td>
+                        <td>¥${(item.qoq * 50000).toLocaleString()}</td>
+                        <td>¥${(item.mom * 30000).toLocaleString()}</td>
+                        <td>¥${(item.ytd * 80000).toLocaleString()}</td>
                     </tr>
                 `;
             });
@@ -1408,8 +1408,8 @@
 
                 // 处理数值类型
                 if (columnIndex > 0) {
-                    const aNum = parseFloat(aValue.replace(/[¥,%]/g, ''));
-                    const bNum = parseFloat(bValue.replace(/[¥,%]/g, ''));
+                    const aNum = parseFloat(aValue.replace(/[¥,]/g, ''));
+                    const bNum = parseFloat(bValue.replace(/[¥,]/g, ''));
                     return window.isAscending ? aNum - bNum : bNum - aNum;
                 } else {
                     // 处理文本类型
