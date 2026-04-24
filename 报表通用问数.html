@@ -863,6 +863,7 @@
 
                     <!-- 快速思考表单 -->
                     <div id="quick-think-form" class="quick-think-form show">
+                        <!-- 第一行：报表和指标（必选） -->
                         <div class="form-row">
                             <div class="form-group with-icon">
                                 <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -878,6 +879,23 @@
                                     <option value="report3">报表名称3</option>
                                 </select>
                             </div>
+                            <div class="form-group with-icon">
+                                <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                                </svg>
+                                <select id="indicator-select">
+                                    <option value="">请选择指标</option>
+                                    <option value="indicator1">指标1</option>
+                                    <option value="indicator2">指标2</option>
+                                    <option value="indicator3">指标3</option>
+                                    <option value="indicator4">指标4</option>
+                                    <option value="all">全部指标</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- 第二行：其他选项（初始隐藏） -->
+                        <div class="form-row additional-options" id="additional-options" style="display: none;">
                             <div class="form-group with-icon">
                                 <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M18 20V10"></path>
@@ -898,8 +916,6 @@
                                 </svg>
                                 <input type="date" id="date-select" placeholder="请选择日期">
                             </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group with-icon">
                                 <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
@@ -943,18 +959,6 @@
                                     <option value="total">合计</option>
                                 </select>
                             </div>
-                            <div class="form-group with-icon">
-                                <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-                                </svg>
-                                <select id="indicator-select">
-                                    <option value="">请选择指标（可多选）</option>
-                                    <option value="indicator1">指标1</option>
-                                    <option value="indicator2">指标2</option>
-                                    <option value="indicator3">指标3</option>
-                                    <option value="indicator4">指标4</option>
-                                </select>
-                            </div>
                             <button class="search-btn">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="11" cy="11" r="8"></circle>
@@ -962,6 +966,8 @@
                                 </svg>
                             </button>
                         </div>
+                        
+                        <!-- 已选指标标签 -->
                         <div class="selected-indicators-container">
                             <div id="selected-indicators" class="selected-indicators"></div>
                         </div>
@@ -1062,6 +1068,8 @@
         const sendBtn = document.getElementById('send-btn');
         const queryInput = document.getElementById('query-input');
         const resultContainer = document.getElementById('result-container');
+        const reportSelect = document.getElementById('report-select');
+        const additionalOptions = document.getElementById('additional-options');
 
 
 
@@ -1071,17 +1079,45 @@
         const selectedIndicatorValues = new Set();
         const searchBtn = document.querySelector('.search-btn');
 
+        // 报表和指标选择后显示其他选项
+        function checkShowAdditionalOptions() {
+            const reportSelected = reportSelect.value !== '';
+            const indicatorSelected = selectedIndicatorValues.size > 0;
+            
+            if (reportSelected && indicatorSelected) {
+                additionalOptions.style.display = 'flex';
+            } else {
+                additionalOptions.style.display = 'none';
+            }
+        }
+
+        // 报表选择事件
+        reportSelect.addEventListener('change', function() {
+            checkShowAdditionalOptions();
+        });
+
+        // 指标选择事件
         indicatorSelect.addEventListener('change', function() {
             const value = this.value;
             if (value) {
                 const text = this.options[this.selectedIndex].text;
-                if (!selectedIndicatorValues.has(value)) {
+                
+                // 如果选择"全部指标"，添加所有指标
+                if (value === 'all') {
+                    for (let i = 1; i <= 4; i++) {
+                        if (!selectedIndicatorValues.has('indicator' + i)) {
+                            selectedIndicatorValues.add('indicator' + i);
+                            addIndicatorTag('indicator' + i, '指标' + i);
+                        }
+                    }
+                } else if (!selectedIndicatorValues.has(value)) {
                     selectedIndicatorValues.add(value);
                     addIndicatorTag(value, text);
                 }
                 // 重置选择框
                 this.value = '';
             }
+            checkShowAdditionalOptions();
         });
 
         function addIndicatorTag(value, text) {
