@@ -1348,21 +1348,21 @@
         }
 
         // 表格排序功能
-        let currentSortColumn = -1;
-        let isAscending = true;
+        window.currentSortColumn = -1;
+        window.isAscending = true;
 
-        function sortTable(columnIndex) {
+        window.sortTable = function(columnIndex) {
             const table = document.querySelector('.result-table');
             const tbody = table.querySelector('tbody');
             const rows = Array.from(tbody.querySelectorAll('tr'));
 
             // 如果点击的是当前排序列，切换排序方向
-            if (columnIndex === currentSortColumn) {
-                isAscending = !isAscending;
+            if (columnIndex === window.currentSortColumn) {
+                window.isAscending = !window.isAscending;
             } else {
                 // 否则，设置新的排序列和默认排序方向
-                currentSortColumn = columnIndex;
-                isAscending = true;
+                window.currentSortColumn = columnIndex;
+                window.isAscending = true;
             }
 
             // 排序行
@@ -1374,10 +1374,10 @@
                 if (columnIndex > 0) {
                     const aNum = parseFloat(aValue.replace(/[¥,%]/g, ''));
                     const bNum = parseFloat(bValue.replace(/[¥,%]/g, ''));
-                    return isAscending ? aNum - bNum : bNum - aNum;
+                    return window.isAscending ? aNum - bNum : bNum - aNum;
                 } else {
                     // 处理文本类型
-                    return isAscending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+                    return window.isAscending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
                 }
             });
 
@@ -1389,7 +1389,7 @@
             // 更新排序图标
             document.querySelectorAll('.sort-icon').forEach(function(icon, index) {
                 if (index === columnIndex) {
-                    icon.textContent = isAscending ? '▼' : '▲';
+                    icon.textContent = window.isAscending ? '▼' : '▲';
                 } else {
                     icon.textContent = '▼';
                 }
