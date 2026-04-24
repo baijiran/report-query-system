@@ -914,7 +914,7 @@
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
-                                <input type="date" id="date-select" placeholder="请选择日期">
+                                <input type="date" id="date-select" placeholder="请选择日期" max="2026-04-24">
                             </div>
                             <div class="form-group with-icon">
                                 <svg class="form-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#07B581" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1070,6 +1070,11 @@
         const resultContainer = document.getElementById('result-container');
         const reportSelect = document.getElementById('report-select');
         const additionalOptions = document.getElementById('additional-options');
+        const dateSelect = document.getElementById('date-select');
+        
+        // 设置日期输入框的最大日期为今天
+        const today = new Date().toISOString().split('T')[0];
+        dateSelect.max = today;
 
 
 
@@ -1319,10 +1324,9 @@
                         <tr>
                             <th onclick="sortTable(0)">指标名称</th>
                             <th onclick="sortTable(1)">当前值 <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(2)">同比 <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(3)">环比 <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(4)">较上月 <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(5)">较年初 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(2)">较上月 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(3)">较年初 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(4)">较上年同期 <span class="sort-icon">▼</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1333,10 +1337,9 @@
                     <tr>
                         <td>${item.name}</td>
                         <td>¥${item.value.toLocaleString()}</td>
-                        <td>¥${(item.yoy * 100000).toLocaleString()}</td>
-                        <td>¥${(item.qoq * 50000).toLocaleString()}</td>
                         <td>¥${(item.mom * 30000).toLocaleString()}</td>
                         <td>¥${(item.ytd * 80000).toLocaleString()}</td>
+                        <td>¥${(item.yoy * 100000).toLocaleString()}</td>
                     </tr>
                 `;
             });
@@ -1357,10 +1360,9 @@
                         <tr>
                             <th onclick="sortTable(0)">指标名称</th>
                             <th onclick="sortTable(1)">当前值 <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(2)">同比 <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(3)">环比 <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(4)">较上月 <span class="sort-icon">▼</span></th>
-                            <th onclick="sortTable(5)">较年初 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(2)">较上月 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(3)">较年初 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(4)">较上年同期 <span class="sort-icon">▼</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1371,10 +1373,9 @@
                     <tr>
                         <td>${item.name}</td>
                         <td>¥${item.value.toLocaleString()}</td>
-                        <td>¥${(item.yoy * 100000).toLocaleString()}</td>
-                        <td>¥${(item.qoq * 50000).toLocaleString()}</td>
                         <td>¥${(item.mom * 30000).toLocaleString()}</td>
                         <td>¥${(item.ytd * 80000).toLocaleString()}</td>
+                        <td>¥${(item.yoy * 100000).toLocaleString()}</td>
                     </tr>
                 `;
             });
