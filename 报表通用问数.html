@@ -884,8 +884,8 @@
                                     <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
                                 </svg>
                                 <select id="indicator-select">
-                                    <option value="all">全部指标</option>
                                     <option value="">请选择指标</option>
+                                    <option value="all">全部选择</option>
                                     <option value="indicator1">指标1</option>
                                     <option value="indicator2">指标2</option>
                                     <option value="indicator3">指标3</option>
@@ -1102,7 +1102,7 @@
             if (value) {
                 const text = this.options[this.selectedIndex].text;
                 
-                // 如果选择"全部指标"，添加所有指标
+                // 如果选择"全部选择"，添加所有指标
                 if (value === 'all') {
                     for (let i = 1; i <= 4; i++) {
                         if (!selectedIndicatorValues.has('indicator' + i)) {
@@ -1317,7 +1317,7 @@
                 <table class="result-table" style="width: 100%;">
                     <thead>
                         <tr>
-                            <th onclick="sortTable(0)">指标名称 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(0)">指标名称</th>
                             <th onclick="sortTable(1)">当前值 <span class="sort-icon">▼</span></th>
                             <th onclick="sortTable(2)">同比 <span class="sort-icon">▼</span></th>
                             <th onclick="sortTable(3)">环比 <span class="sort-icon">▼</span></th>
@@ -1355,7 +1355,7 @@
                 <table class="result-table">
                     <thead>
                         <tr>
-                            <th onclick="sortTable(0)">指标名称 <span class="sort-icon">▼</span></th>
+                            <th onclick="sortTable(0)">指标名称</th>
                             <th onclick="sortTable(1)">当前值 <span class="sort-icon">▼</span></th>
                             <th onclick="sortTable(2)">同比 <span class="sort-icon">▼</span></th>
                             <th onclick="sortTable(3)">环比 <span class="sort-icon">▼</span></th>
